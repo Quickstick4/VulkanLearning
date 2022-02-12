@@ -18,7 +18,7 @@ const uint32_t HEIGHT = 600;
 class HelloTriangleApplication 
 {
 public:
-	void run() 
+	void run()   
 	{
 		//Vulkan can run without a window. This uses GFLW as the window generator
 		initWindow();
@@ -32,7 +32,8 @@ private:
 
 
 	//Declare the class window - uses a pointer... 
-	GLFWwindow * window;
+	//window is the address of type GLFWwindow...why...read GLFW docs
+	GLFWwindow* window;
 
 	//Declare the Vulkan Environement
 	//Vulkan must be seen as a subsystem of the application. State must be tracked by the object we create.
