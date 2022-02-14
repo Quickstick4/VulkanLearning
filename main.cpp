@@ -10,10 +10,25 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <vector>
+#include <cstring>
 
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+
+
+//Validation Layer
+//Creates a const vector with a char pointer, unsure why we need to create a vector
+//to store this information
+const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
 
 class HelloTriangleApplication 
 {
@@ -24,15 +39,28 @@ public:
 		initWindow();
 
 		initVulkan();
+
+
+		//added for my own learning/validating whats in the vector...
+		for (int i = 0; i < validationLayers.size(); i++)
+		{
+			std::cout << validationLayers[i] << "\n";
+		} 
+
 		mainloop();
 		cleanup();
+
+		
+		
 	}
+	
 
 private:
 
 
 	//Declare the class window - uses a pointer... 
 	//window is the address of type GLFWwindow...why...read GLFW docs
+	//This creates a dynamic object and binds its address to a pointer - window;
 	GLFWwindow* window;
 
 	//Declare the Vulkan Environement
@@ -146,7 +174,16 @@ private:
 		createInfo.enabledExtensionCount = glfwExtensionCount;
 		createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-		createInfo.enabledLayerCount = 0;
+		/////////////TODO/////////////////////////
+		if (enableValidationLayers) 			//
+		{										//
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    		createInfo.ppEnabledLayerNames = validationLayers.data();
+    											//
+		} else {								//	
+		createInfo.enabledLayerCount = 0;		//
+		}										//
+		//////////////////////////////////////////	
 
 		//This creates an instance. Remember - you can have more than once instance inside an application
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
@@ -158,7 +195,56 @@ private:
 	    	throw std::runtime_error("failed to create instance!");
 		}
 
+		//Debug mode = true && chechValidationLayerSupport 
+		if (enableValidationLayers && !checkValidationLayerSupport()) 
+		{
+        	throw std::runtime_error("validation layers requested, but not available!");
+    	} 
+    	else if (enableValidationLayers && checkValidationLayerSupport()) 
+    	{
+    		std::cout << "Debug mode is on and layers found\n";
+    	}
+
+
 	}
+
+	bool checkValidationLayerSupport()
+	{
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+
+        //This is a C++ range based loop
+        //The const char pointer named layerName is instanciated here, it will then go through
+        //all the elements in validationLayers
+        //We set validationLayers at the top of the object, so only 1 loop required
+        //Thought: Is un-needed now when only one vaildation layer exists in Vulkan now?
+        for (const char* layerName : validationLayers) 
+        {
+            bool layerFound = false;
+
+            for (const auto &layerProperties : availableLayers) 
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0) 
+                {
+                    layerFound = true;
+                    std::cout << "Layer Found: " << layerProperties.layerName << "\n";
+                    break;
+                }
+            }
+
+            if (!layerFound) 
+            {
+                return false;
+                std::cout << "Layer not Found";
+            }
+        }
+
+        return true;
+    }
 
 
 
