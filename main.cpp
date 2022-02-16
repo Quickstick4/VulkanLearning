@@ -19,9 +19,8 @@ const uint32_t HEIGHT = 600;
 
 
 //Validation Layer
-//Creates a const vector with a char pointer, unsure why we need to create a vector
-//to store this information
-const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+//Creates a const vector with a char pointer
+const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_MANGOHUD_overlay"};
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -174,16 +173,15 @@ private:
 		createInfo.enabledExtensionCount = glfwExtensionCount;
 		createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-		/////////////TODO/////////////////////////
-		if (enableValidationLayers) 			//
-		{										//
+		
+		if (enableValidationLayers) 			
+		{										
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     		createInfo.ppEnabledLayerNames = validationLayers.data();
-    											//
-		} else {								//	
-		createInfo.enabledLayerCount = 0;		//
-		}										//
-		//////////////////////////////////////////	
+    											
+		} else {									
+		createInfo.enabledLayerCount = 0;		
+		}										
 
 		//This creates an instance. Remember - you can have more than once instance inside an application
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
@@ -200,7 +198,7 @@ private:
 		{
         	throw std::runtime_error("validation layers requested, but not available!");
     	} 
-    	else if (enableValidationLayers && checkValidationLayerSupport()) 
+    	else
     	{
     		std::cout << "Debug mode is on and layers found\n";
     	}
@@ -211,7 +209,10 @@ private:
 	bool checkValidationLayerSupport()
 	{
         uint32_t layerCount;
+        //Pass the address of layerCount - method changes the value without passing
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::cout << layerCount << "\n";
 
         std::vector<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
@@ -222,16 +223,22 @@ private:
         //all the elements in validationLayers
         //We set validationLayers at the top of the object, so only 1 loop required
         //Thought: Is un-needed now when only one vaildation layer exists in Vulkan now?
+
+        //There is only on element in validationLayers so why the For loop?
+        //Answear: there are more layers than just the validatioLayer. SteamOverlay is a layer, so is MangoHud etc
         for (const char* layerName : validationLayers) 
         {
             bool layerFound = false;
 
+
+            //the ampersand is passing the memory location of layerProperties to the for loop command vs copying it
             for (const auto &layerProperties : availableLayers) 
             {
+            	//Strcmp will return 0 the contents of both strings are equal
                 if (strcmp(layerName, layerProperties.layerName) == 0) 
                 {
                     layerFound = true;
-                    std::cout << "Layer Found: " << layerProperties.layerName << "\n";
+                    std::cout << "Layer Enabled: " << layerProperties.layerName << "\n";
                     break;
                 }
             }
