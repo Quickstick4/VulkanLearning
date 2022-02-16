@@ -20,7 +20,7 @@ const uint32_t HEIGHT = 600;
 
 //Validation Layer
 //Creates a const vector with a char pointer
-const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_MANGOHUD_overlay"};
+const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"}; //,"VK_LAYER_MANGOHUD_overlay"};
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -39,17 +39,8 @@ public:
 
 		initVulkan();
 
-
-		//added for my own learning/validating whats in the vector...
-		for (int i = 0; i < validationLayers.size(); i++)
-		{
-			std::cout << validationLayers[i] << "\n";
-		} 
-
 		mainloop();
 		cleanup();
-
-		
 		
 	}
 	
@@ -208,14 +199,27 @@ private:
 
 	bool checkValidationLayerSupport()
 	{
+
+		//Get the number of layers available
         uint32_t layerCount;
         //Pass the address of layerCount - method changes the value without passing
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-        std::cout << layerCount << "\n";
-
+        //Pass all the layers to a vector with the stuct contiaing the information on the layers
         std::vector<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+
+        //Output for reference
+        std::cout << "Number of layers available: " << layerCount << "\n";
+
+        for (const auto &layername : availableLayers)
+        {
+        	//TODO: Better text output 
+        	std:: cout <<"Layer Name: " << layername.layerName << "\t";
+        	std:: cout << "Layer Description: " << layername.description;
+        	std:: cout << "\n";
+        }
 
 
         //This is a C++ range based loop
