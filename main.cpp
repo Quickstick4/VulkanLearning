@@ -40,8 +40,9 @@ public:
 		initVulkan();
 
 		mainloop();
-		cleanup();
 		
+		cleanup();
+		//Another test
 	}
 	
 
@@ -51,14 +52,14 @@ private:
 	//Declare the class window - uses a pointer... 
 	//window is the address of type GLFWwindow...why...read GLFW docs
 	//This creates a dynamic object and binds its address to a pointer - window;
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	//Declare the Vulkan Environement
 	//Vulkan must be seen as a subsystem of the application. State must be tracked by the object we create.
 	VkInstance instance;
 
 	//Experiment with pointers later...
-	//int * testing;
+	//int *testing;
 	
 	void initWindow()
 	{
@@ -98,6 +99,7 @@ private:
 	{
 
 		std::cout << "Main Loop begun.\n";
+		std::cout << "Just adding something here to force a recompile after Vulkan SDK was uninstalled by Ubuntu update! \n";
 
 		while(!glfwWindowShouldClose(window))
 		{
@@ -157,7 +159,7 @@ private:
 
 		//These lines return the extensions (to interface with windowing system) from GLFW 
 		uint32_t glfwExtensionCount = 0;
-	    const char** glfwExtensions;
+	    const char **glfwExtensions;
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 		//Put this GLFW information into the createInfo stuct before passing the the vulkan instance 
@@ -233,7 +235,6 @@ private:
         for (const char* layerName : validationLayers) 
         {
             bool layerFound = false;
-
 
             //the ampersand is passing the memory location of layerProperties to the for loop command vs copying it
             for (const auto &layerProperties : availableLayers) 
